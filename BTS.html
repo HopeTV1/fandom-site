@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTS - Member Profiles & Interactive Lounge</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f3ebf7; color: #333; min-height: 100vh; }
+    nav { background: #1e1c28; padding: 0 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .nav-logo { color: #f3e8ff; font-weight: bold; text-decoration: none; font-size: 1.15rem; }
+    .nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 15px; }
+    .nav-item { position: relative; }
+    .nav-link { color: #d8b4fe; text-decoration: none; padding: 8px 14px; display: block; font-weight: bold; border-radius: 8px; }
+    .nav-link.active, .nav-link:hover, .nav-item:hover > .nav-link { color: #ffffff; background: rgba(187, 134, 252, 0.25); }
+    .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: #252238; min-width: 170px; border-radius: 10px; padding: 8px 0; list-style: none; border: 1px solid rgba(255,255,255,0.08); }
+    .dropdown-menu a { color: #e2d8f0; padding: 8px 16px; text-decoration: none; display: block; font-size: 0.88rem; }
+    .dropdown-menu a:hover { background: #bb86fc; color: #121212; font-weight: bold; }
+    .nav-item:hover .dropdown-menu { display: block; }
+    .page-header { text-align: center; padding: 25px 20px 10px; }
+    .page-header h1 { margin: 0 0 6px 0; color: #5c2b8c; font-size: 2.2rem; }
+    .page-header p { margin: 0; color: #6b6375; font-size: 0.95rem; }
+    .dashboard-container { max-width: 1400px; margin: 20px auto 40px; padding: 0 20px; display: grid; grid-template-columns: 320px 1fr 340px; gap: 24px; align-items: start; }
+    .sidebar-card, .main-card { background: #faf5fc; border-radius: 20px; padding: 22px; box-shadow: 0 6px 18px rgba(92, 43, 140, 0.06); border: 1px solid #e9dcf0; }
+    .section-title { color: #5c2b8c; font-size: 1.25rem; margin: 0 0 16px 0; text-align: center; }
+    .left-sidebar, .right-sidebar { display: flex; flex-direction: column; gap: 24px; }
+    .track-select { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #d4c2e3; outline: none; font-size: 0.88rem; font-weight: bold; color: #4a2173; background: #ffffff; margin-bottom: 12px; }
+    .audio-controls { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .ctrl-btn { background: #8b5cc4; color: #ffffff; border: none; padding: 8px 14px; border-radius: 16px; font-weight: bold; cursor: pointer; font-size: 0.82rem; }
+    .ctrl-btn:hover { background: #7342ac; }
+    .scrubber-container { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: bold; color: #5c2b8c; }
+    .seek-slider { flex: 1; height: 5px; accent-color: #8b5cc4; cursor: pointer; }
+    .quote-tab-btns { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
+    .tab-btn { background: #e9dcf0; border: none; padding: 6px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: bold; cursor: pointer; color: #5c2b8c; }
+    .tab-btn.active { background: #8b5cc4; color: #fff; }
+    .quote-buttons { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 14px; }
+    .quote-btn { background: #f0e2f7; border: 1px solid #d4c2e3; padding: 6px 10px; border-radius: 14px; cursor: pointer; font-weight: bold; font-size: 0.82rem; color: #5c2b8c; }
+    .quote-btn:hover { background: #8b5cc4; color: #ffffff; }
+    .quote-box { background: #ffffff; border: 1px dashed #cbb2e0; border-radius: 14px; padding: 14px; text-align: center; font-size: 0.88rem; font-style: italic; color: #4a2173; min-height: 75px; display: flex; align-items: center; justify-content: center; }
+    .album-accordion { margin-bottom: 10px; border-radius: 12px; overflow: hidden; border: 1px solid #d4c2e3; }
+    .album-header { background: #8b5cc4; color: white; padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; font-size: 0.85rem; }
+    .song-list { list-style: none; padding: 8px 12px; margin: 0; background: #fff; }
+    .song-list li { padding: 4px 0; border-bottom: 1px dashed #e9dcf0; display: flex; justify-content: space-between; font-size: 0.8rem; color: #444; }
+    .song-list li:last-child { border-bottom: none; }
+    .filter-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 20px; }
+    #searchInput { padding: 10px 18px; width: 100%; max-width: 380px; border: 1px solid #d4c2e3; border-radius: 20px; outline: none; font-size: 0.9rem; background: #ffffff; }
+    .filter-buttons { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .filter-btn { background: #eeddf7; border: none; padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 0.82rem; font-weight: bold; color: #5c2b8c; }
+    .filter-btn.active, .filter-btn:hover { background: #8b5cc4; color: #ffffff; }
+    .members-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+    .member-card { background: #ffffff; border-radius: 16px; padding: 14px; text-align: center; box-shadow: 0 4px 12px rgba(92, 43, 140, 0.05); border: 1px solid #e9dcf0; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; }
+    .member-card:hover { transform: translateY(-5px); }
+    .member-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; }
+    .member-card h3 { margin: 10px 0 2px; color: #3b165c; font-size: 1.1rem; }
+    .member-card p { margin: 0 0 10px; font-size: 0.82rem; color: #736980; }
+    .btn-profile { display: inline-block; padding: 8px 14px; background: #8b5cc4; color: #ffffff; border: none; cursor: pointer; font-weight: bold; border-radius: 18px; font-size: 0.82rem; }
+    .quiz-progress { font-size: 0.82rem; font-weight: bold; color: #8b5cc4; margin-bottom: 8px; text-align: center; }
+    .quiz-question { font-size: 0.95rem; font-weight: bold; color: #3b165c; margin-bottom: 14px; text-align: center; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .quiz-opt-btn { background: #ffffff; border: 1px solid #d4c2e3; padding: 10px 12px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #4a2173; text-align: left; }
+    .quiz-opt-btn.selected { background: #8b5cc4; color: #ffffff; border-color: #8b5cc4; }
+    .quiz-nav-btns { display: flex; justify-content: space-between; gap: 10px; }
+    .quiz-result { display: none; background: #fffbeb; border: 1px dashed #d97706; padding: 16px; border-radius: 16px; text-align: center; }
+    .binder-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .flip-card { background-color: transparent; height: 150px; perspective: 1000px; cursor: pointer; }
+    .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 6px; }
+    .flip-card-front { background: #8b5cc4; color: #ffffff; font-weight: bold; font-size: 0.8rem; }
+    .flip-card-back { background: #ffffff; color: #333; transform: rotateY(180deg); border: 1px solid #8b5cc4; }
+    .flip-card-back img { width: 100%; height: 95px; object-fit: cover; border-radius: 8px; margin-bottom: 2px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 2000; }
+    .modal-content { background-color: #ffffff; padding: 24px; border-radius: 18px; width: 90%; max-width: 540px; max-height: 90vh; overflow-y: auto; position: relative; }
+    .close-btn { position: absolute; top: 12px; right: 16px; font-size: 24px; cursor: pointer; color: #888; }
+    .modal-header { display: flex; gap: 16px; align-items: center; margin-bottom: 15px; }
+    .modal-img { width: 120px; height: 150px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+    .modal-title-group h2 { margin: 0 0 4px 0; color: #5c2b8c; }
+    .modal-role { color: #8b5cc4; font-weight: bold; margin: 0 0 8px 0; }
+    .emoji-badge { display: inline-flex; align-items: center; gap: 6px; background: #f0e2f7; padding: 4px 10px; border-radius: 12px; font-size: 0.82rem; font-weight: bold; color: #5c2b8c; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #faf5fc; padding: 12px; border-radius: 10px; margin: 14px 0; border: 1px solid #e9dcf0; }
+    .stat-label { font-weight: bold; color: #8b5cc4; display: block; font-size: 0.75rem; text-transform: uppercase; }
+    .stat-value { color: #222; font-weight: 600; font-size: 0.88rem; }
+    .modal-bio-text { line-height: 1.5; color: #444; font-size: 0.88rem; }
+    @media (max-width: 1100px) { .dashboard-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">MUSIC VAULT ✨</a>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="#" class="nav-link active">Boy Groups ▾</a><ul class="dropdown-menu"><li><a href="bts.html">BTS</a></li><li><a href="zb1.html">ZEROBASEONE</a></li></ul></li>
+        <li class="nav-item"><a href="#" class="nav-link">Girl Groups ▾</a><ul class="dropdown-menu"><li><a href="newjeans.html">NewJeans</a></li></ul></li>
+        <li class="nav-item"><a href="#" class="nav-link">Soloists ▾</a><ul class="dropdown-menu"><li><a href="melanie.html">Melanie Martinez</a></li></ul></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>BTS (방탄소년단)</h1>
+    <p>Explore member profiles, play music, test your bias match, or reveal photocards!</p>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- LEFT SIDEBAR -->
+    <div class="left-sidebar">
+      <div class="sidebar-card">
+        <h2 class="section-title">🎧 Music Lounge</h2>
+        <select id="songSelect" class="track-select" onchange="changeTrack(this.value)">
+          <option value="bts.mp3">🎵 BTS - Spring Day (봄날)</option>
+          <option value="dynamite.mp3">🎵 BTS - Dynamite</option>
+          <option value="butter.mp3">🎵 BTS - Butter</option>
+          <option value="boy_with_luv.mp3">🎵 BTS - Boy With Luv</option>
+        </select>
+        <div class="audio-controls">
+          <button class="ctrl-btn" onclick="rewindAudio()">↺ -10s</button>
+          <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlayPause()">▶ Play</button>
+          <button class="ctrl-btn" onclick="skipAudio()">+10s ↻</button>
+        </div>
+        <div class="scrubber-container">
+          <span id="currentTime">0:00</span>
+          <input type="range" id="seekBar" class="seek-slider" value="0" min="0" max="100" oninput="seekAudio(this.value)">
+          <span id="totalDuration">0:00</span>
+        </div>
+        <audio id="audioEngine" ontimeupdate="updateProgress()" onloadedmetadata="initAudioMetadata()"></audio>
+      </div>
+
+      <div class="sidebar-card">
+        <h2 class="section-title">💬 Soundboard & Quotes</h2>
+        <div class="quote-tab-btns">
+          <button class="tab-btn active" id="btnIconic" onclick="switchQuoteCategory('iconic')">Iconic ✨</button>
+          <button class="tab-btn" id="btnFunny" onclick="switchQuoteCategory('funny')">Funny 😂</button>
+        </div>
+        <div class="quote-buttons">
+          <button class="quote-btn" onclick="showQuote('rm')">RM</button>
+          <button class="quote-btn" onclick="showQuote('jin')">Jin</button>
+          <button class="quote-btn" onclick="showQuote('suga')">SUGA</button>
+          <button class="quote-btn" onclick="showQuote('jhope')">j-hope</button>
+          <button class="quote-btn" onclick="showQuote('jimin')">Jimin</button>
+          <button class="quote-btn" onclick="showQuote('v')">V</button>
+          <button class="quote-btn" onclick="showQuote('jungkook')">Jungkook</button>
+        </div>
+        <div class="quote-box" id="quoteText">"Click a member above to reveal a quote!"</div>
+      </div>
+
+      <!-- DISCOGRAPHY UNDER QUOTES -->
+      <div class="sidebar-card">
+        <h2 class="section-title">💿 Discography</h2>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('bts_be')"><span>BE (2020)</span><span>▾</span></div>
+          <ul class="song-list" id="bts_be" style="display: block;">
+            <li><span>Life Goes On</span><span>3:27</span></li>
+            <li><span>Fly To My Room</span><span>3:42</span></li>
+            <li><span>Blue & Grey</span><span>4:15</span></li>
+            <li><span>Dynamite</span><span>3:19</span></li>
+          </ul>
+        </div>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('bts_mots7')"><span>MOTS: 7 (2020)</span><span>▾</span></div>
+          <ul class="song-list" id="bts_mots7" style="display: none;">
+            <li><span>ON</span><span>4:06</span></li>
+            <li><span>Black Swan</span><span>3:18</span></li>
+            <li><span>Boy With Luv</span><span>3:49</span></li>
+            <li><span>Filter</span><span>3:00</span></li>
+          </ul>
+        </div>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('bts_ynwa')"><span>YNWA (2017)</span><span>▾</span></div>
+          <ul class="song-list" id="bts_ynwa" style="display: none;">
+            <li><span>Spring Day</span><span>4:34</span></li>
+            <li><span>Not Today</span><span>3:51</span></li>
+            <li><span>Blood Sweat & Tears</span><span>3:37</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="main-card">
+      <div class="filter-container">
+        <input type="text" id="searchInput" placeholder="Search member name or role..." onkeyup="filterMembers()">
+        <div class="filter-buttons">
+          <button class="filter-btn active" onclick="filterCategory('all', this)">All</button>
+          <button class="filter-btn" onclick="filterCategory('vocal', this)">Vocalists</button>
+          <button class="filter-btn" onclick="filterCategory('rap', this)">Rappers</button>
+          <button class="filter-btn" onclick="filterCategory('dance', this)">Dancers</button>
+        </div>
+      </div>
+
+      <div class="members-grid">
+        <div class="member-card" data-category="rap"><img src="namjoon.jpg" alt="RM"><h3>RM</h3><p>Leader & Main Rapper</p><button class="btn-profile" onclick="openModal('rm')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="vocal"><img src="jin.jpg" alt="Jin"><h3>Jin</h3><p>Sub Vocalist & Visual</p><button class="btn-profile" onclick="openModal('jin')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="rap"><img src="yoongi.jpg" alt="SUGA"><h3>SUGA</h3><p>Lead Rapper</p><button class="btn-profile" onclick="openModal('suga')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="dance rap"><img src="hoseok.jpg" alt="j-hope"><h3>j-hope</h3><p>Main Dancer & Rapper</p><button class="btn-profile" onclick="openModal('jhope')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="dance vocal"><img src="jimin.jpg" alt="Jimin"><h3>Jimin</h3><p>Main Dancer & Lead Vocalist</p><button class="btn-profile" onclick="openModal('jimin')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="vocal"><img src="taehyung.jpg" alt="V"><h3>V</h3><p>Sub Vocalist & Visual</p><button class="btn-profile" onclick="openModal('v')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="vocal dance"><img src="jungkook.jpg" alt="Jungkook"><h3>Jungkook</h3><p>Main Vocalist & Maknae</p><button class="btn-profile" onclick="openModal('jungkook')">View Profile &rrarr;</button></div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="right-sidebar">
+      <div class="sidebar-card">
+        <h2 class="section-title">🔮 Find Your BTS Match</h2>
+        <div class="quiz-progress" id="quizProgress">Question 1 of 10</div>
+        <div class="quiz-question" id="quizQuestion">Loading question...</div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-nav-btns" id="quizNav">
+          <button class="btn-profile" id="prevBtn" onclick="prevQuestion()" style="background: #a1a1aa;">← Back</button>
+          <button class="btn-profile" id="nextBtn" onclick="nextQuestion()">Next →</button>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <h3 id="resultTitle" style="margin: 0 0 6px 0; color: #92400e; font-size: 1.1rem;"></h3>
+          <p id="resultDesc" style="margin: 0 0 12px 0; color: #78350f; font-size: 0.85rem; line-height: 1.4;"></p>
+          <button class="btn-profile" onclick="resetQuiz()">Retake Quiz ↺</button>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h2 class="section-title">🃏 Photocard Binder</h2>
+        <div class="binder-grid">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #1</div><div class="flip-card-back"><img src="namjoon_pc.jpg" onerror="this.src='namjoon.jpg'" alt="RM"><b>RM 🐨</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #2</div><div class="flip-card-back"><img src="jin_pc.jpg" onerror="this.src='jin.jpg'" alt="Jin"><b>Jin 🐹</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #3</div><div class="flip-card-back"><img src="yoongi_pc.jpg" onerror="this.src='yoongi.jpg'" alt="SUGA"><b>SUGA 🐱</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #4</div><div class="flip-card-back"><img src="hoseok_pc.jpg" onerror="this.src='hoseok.jpg'" alt="j-hope"><b>j-hope 🌞</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #5</div><div class="flip-card-back"><img src="jimin_pc.jpg" onerror="this.src='jimin.jpg'" alt="Jimin"><b>Jimin 🐥</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #6</div><div class="flip-card-back"><img src="taehyung_pc.jpg" onerror="this.src='taehyung.jpg'" alt="V"><b>V 🐻</b></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div class="modal-header">
+        <img id="modalImg" class="modal-img" src="" alt="Member Photo">
+        <div class="modal-title-group">
+          <h2 id="modalStageName">Stage Name</h2>
+          <p id="modalPosition" class="modal-role">Position</p>
+          <div class="emoji-badge"><span id="modalEmojiIcon"></span><span id="modalEmojiLabel">Emoji</span></div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item"><span class="stat-label">Birth Name</span><span id="modalBirthName" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Birthday</span><span id="modalBirthday" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Zodiac Sign</span><span id="modalZodiac" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Height</span><span id="modalHeight" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">MBTI</span><span id="modalMbti" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Nationality</span><span id="modalNationality" class="stat-value">-</span></div>
+      </div>
+      <p id="modalBio" class="modal-bio-text">Member bio...</p>
+    </div>
+  </div>
+
+  <script>
+    const memberData = {
+      rm: { image: 'namjoon.jpg', stageName: 'RM', birthName: 'Kim Namjoon', birthday: 'September 12, 1994', position: 'Leader, Main Rapper', zodiac: 'Virgo', height: '181 cm (5 ft 11 in)', mbti: 'ENTP', nationality: 'South Korean', emojiIcon: '🐨', emojiLabel: 'Koala', bio: 'Kim Namjoon is the leader and main rapper of BTS. Renowned for his poetic lyrics, high IQ (148), art collection passions, and solo discography like Indigo.' },
+      jin: { image: 'jin.jpg', stageName: 'Jin', birthName: 'Kim Seokjin', birthday: 'December 4, 1992', position: 'Sub Vocalist, Visual', zodiac: 'Sagittarius', height: '179 cm (5 ft 10.5 in)', mbti: 'INTP', nationality: 'South Korean', emojiIcon: '🐹/🦙', emojiLabel: 'Hamster / Alpaca', bio: 'Kim Seokjin is the eldest member of BTS, dubbed Worldwide Handsome. Celebrated for his wide vocal range, emotive ballads like Epiphany, and silver-toned vocals.' },
+      suga: { image: 'yoongi.jpg', stageName: 'SUGA / Agust D', birthName: 'Min Yoongi', birthday: 'March 9, 1993', position: 'Lead Rapper', zodiac: 'Pisces', height: '174 cm (5 ft 8.5 in)', mbti: 'ISTP', nationality: 'South Korean', emojiIcon: '🐱', emojiLabel: 'Cat', bio: 'Min Yoongi is a primary songwriter and lead rapper for BTS. Under his solo alter-ego Agust D, he crafts deeply candid hip-hop tracks.' },
+      jhope: { image: 'hoseok.jpg', stageName: 'j-hope', birthName: 'Jung Hoseok', birthday: 'February 18, 1994', position: 'Main Dancer, Rapper', zodiac: 'Aquarius', height: '177 cm (5 ft 9.7 in)', mbti: 'ESFJ', nationality: 'South Korean', emojiIcon: '🌞/🐿️', emojiLabel: 'Sun/Squirrel', bio: 'Jung Hoseok is the main dancer and performance leader of BTS. Recognized for his bright energy, intricate choreography execution, and Jack In The Box.' },
+      jimin: { image: 'jimin.jpg', stageName: 'Jimin', birthName: 'Park Jimin', birthday: 'October 13, 1995', position: 'Main Dancer, Lead Vocalist', zodiac: 'Libra', height: '174 cm (5 ft 8.5 in)', mbti: 'ESTP', nationality: 'South Korean', emojiIcon: '🐥', emojiLabel: 'Baby Chick', bio: 'Park Jimin is famous for his contemporary dance background, fluid stage movement, unique high vocal register, and record-breaking solo releases like FACE.' },
+      v: { image: 'taehyung.jpg', stageName: 'V', birthName: 'Kim Taehyung', birthday: 'December 30, 1995', position: 'Sub Vocalist, Visual', zodiac: 'Capricorn', height: '179 cm (5 ft 10.5 in)', mbti: 'ENTP', nationality: 'South Korean', emojiIcon: '🐻/🐯', emojiLabel: 'Bear / Tiger', bio: 'Kim Taehyung is celebrated for his deep, warm baritone voice, artistic photography skills, vintage aesthetics, and solo album Layover.' },
+      jungkook: { image: 'jungkook.jpg', stageName: 'Jungkook', birthName: 'Jeon Jeongguk', birthday: 'September 1, 1997', position: 'Main Vocalist, Center, Maknae', zodiac: 'Virgo', height: '177 cm (5 ft 10 in)', mbti: 'ISFP', nationality: 'South Korean', emojiIcon: '🐰', emojiLabel: 'Rabbit', bio: 'Jeon Jungkook is the Golden Maknae of BTS. Known for his powerful vocal stability, athletic choreography, video directing, and global solo pop smash GOLDEN.' }
+    };
+
+    let currentQuoteCategory = 'iconic';
+    const btsIconicQuotes = {
+      rm: '"No matter who you are, where you’re from, speak yourself."',
+      jin: '"Your presence can give happiness. I hope you remember that."',
+      suga: '"May your trials end in full bloom."',
+      jhope: '"I\'m your hope, you\'re my hope, I\'m j-hope!"',
+      jimin: '"Remember there is a person here in Korea who understands you."',
+      v: '"Purple means I will trust and love you for a long time."',
+      jungkook: '"Living without passion is like being dead."'
+    };
+    const btsFunnyQuotes = {
+      rm: '"Jimin, you got no jams."',
+      jin: '"I am Worldwide Handsome, you know?"',
+      suga: '"In my next life, I want to be born as a rock."',
+      jhope: '"I hate snakeu!"',
+      jimin: '"Lajibolala!"',
+      v: '"Not, NOT NO! Turn off the TV!"',
+      jungkook: '"Ding dong! International Playboy!"'
+    };
+
+    function switchQuoteCategory(cat) {
+      currentQuoteCategory = cat;
+      document.getElementById('btnIconic').classList.toggle('active', cat === 'iconic');
+      document.getElementById('btnFunny').classList.toggle('active', cat === 'funny');
+      document.getElementById('quoteText').innerText = `"Click a member above for a ${cat} quote!"`;
+    }
+
+    function showQuote(m) {
+      const bank = currentQuoteCategory === 'iconic' ? btsIconicQuotes : btsFunnyQuotes;
+      document.getElementById('quoteText').innerText = bank[m] || '';
+    }
+
+    function toggleAlbum(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    const audio = document.getElementById('audioEngine');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function changeTrack(src) { audio.src = src; audio.play().then(() => playPauseBtn.innerText = '⏸ Pause').catch(e => console.log('Wait click')); }
+    function togglePlayPause() {
+      if (!audio.src) audio.src = document.getElementById('songSelect').value;
+      if (audio.paused) { audio.play(); playPauseBtn.innerText = '⏸ Pause'; } else { audio.pause(); playPauseBtn.innerText = '▶ Play'; }
+    }
+    function rewindAudio() { audio.currentTime = Math.max(0, audio.currentTime - 10); }
+    function skipAudio() { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); }
+    function seekAudio(val) { audio.currentTime = (val / 100) * audio.duration; }
+    function updateProgress() {
+      if (!audio.duration) return;
+      document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
+      document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+      document.getElementById('totalDuration').innerText = formatTime(audio.duration);
+    }
+    function initAudioMetadata() { document.getElementById('totalDuration').innerText = formatTime(audio.duration); }
+    function formatTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? '0' : ''}${sec}`; }
+
+    const rawQuestions = [
+      { q: "1. Spend a quiet afternoon?", opts: [{ txt: "Read/Museums", member: "rm" }, { txt: "Gaming/Snacks", member: "jin" }, { txt: "Music/Rest", member: "suga" }, { txt: "Dance/Shopping", member: "jhope" }, { txt: "Chat friends", member: "jimin" }, { txt: "Jazz records", member: "v" }, { txt: "Working out", member: "jungkook" }] },
+      { q: "2. Valued friend trait?", opts: [{ txt: "Wisdom", member: "rm" }, { txt: "Humor", member: "jin" }, { txt: "Loyalty", member: "suga" }, { txt: "Positivity", member: "jhope" }, { txt: "Empathy", member: "jimin" }, { txt: "Creativity", member: "v" }, { txt: "Passion", member: "jungkook" }] },
+      { q: "3. Preferred fashion vibe?", opts: [{ txt: "Oversized art student", member: "rm" }, { txt: "Pastel sweaters", member: "jin" }, { txt: "All black street", member: "suga" }, { txt: "Vibrant accessories", member: "jhope" }, { txt: "Chic tailored coats", member: "jimin" }, { txt: "Vintage coats", member: "v" }, { txt: "Dark athletic wear", member: "jungkook" }] },
+      { q: "4. Challenging times reaction?", opts: [{ txt: "Write journal", member: "rm" }, { txt: "Make jokes", member: "jin" }, { txt: "Analyze quietly", member: "suga" }, { txt: "Stay high energy", member: "jhope" }, { txt: "Lean on friends", member: "jimin" }, { txt: "Unique view", member: "v" }, { txt: "Practice harder", member: "jungkook" }] },
+      { q: "5. Favorite beverage?", opts: [{ txt: "Herbal tea", member: "rm" }, { txt: "Fruit smoothie", member: "jin" }, { txt: "Iced Americano", member: "suga" }, { txt: "Iced latte", member: "jhope" }, { txt: "Warm milk", member: "jimin" }, { txt: "Hot chocolate", member: "v" }, { txt: "Banana milk", member: "jungkook" }] },
+      { q: "6. Creative art form?", opts: [{ txt: "Poetry", member: "rm" }, { txt: "Acting/Comedy", member: "jin" }, { txt: "Audio beats", member: "suga" }, { txt: "Choreography", member: "jhope" }, { txt: "Contemporary vocal", member: "jimin" }, { txt: "Film photo", member: "v" }, { txt: "Video editing", member: "jungkook" }] },
+      { q: "7. Relaxing space?", opts: [{ txt: "Quiet park", member: "rm" }, { txt: "Cozy game room", member: "jin" }, { txt: "Dim studio", member: "suga" }, { txt: "Dance studio", member: "jhope" }, { txt: "Warm cafe", member: "jimin" }, { txt: "Vintage shop", member: "v" }, { txt: "Modern gym", member: "jungkook" }] },
+      { q: "8. Inspired time of day?", opts: [{ txt: "Sunrise", member: "rm" }, { txt: "Dinner time", member: "jin" }, { txt: "Late 2 AM", member: "suga" }, { txt: "Sunny afternoon", member: "jhope" }, { txt: "Sunset hour", member: "jimin" }, { txt: "Rainy evening", member: "v" }, { txt: "Workout hours", member: "jungkook" }] },
+      { q: "9. Approach to new skills?", opts: [{ txt: "Study concepts", member: "rm" }, { txt: "Casual fun", member: "jin" }, { txt: "Quiet focus", member: "suga" }, { txt: "High enthusiasm", member: "jhope" }, { txt: "Patient practice", member: "jimin" }, { txt: "Experiment", member: "v" }, { txt: "Instant absorption", member: "jungkook" }] },
+      { q: "10. Core motto?", opts: [{ txt: "Cast through mistakes.", member: "rm" }, { txt: "Live joyfully!", member: "jin" }, { txt: "Keep moving forward.", member: "suga" }, { txt: "Hard work yields beauty.", member: "jhope" }, { txt: "Never give up.", member: "jimin" }, { txt: "Don't trap in dreams.", member: "v" }, { txt: "Passionate living.", member: "jungkook" }] }
+    ];
+
+    let quizData = [], currentQ = 0, selectedAnswers = new Array(10).fill(null);
+    function shuffleArray(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+    function initQuiz() { quizData = rawQuestions.map(item => ({ q: item.q, opts: shuffleArray(item.opts) })); currentQ = 0; selectedAnswers.fill(null); renderQuestion(); }
+    function renderQuestion() {
+      const q = quizData[currentQ];
+      document.getElementById('quizProgress').innerText = `Question ${currentQ + 1} of 10`;
+      document.getElementById('quizQuestion').innerText = q.q;
+      document.getElementById('quizOptions').innerHTML = q.opts.map(opt => `
+        <button class="quiz-opt-btn ${selectedAnswers[currentQ] === opt.member ? 'selected' : ''}" onclick="chooseOption('${opt.member}')">${opt.txt}</button>
+      `).join('');
+      document.getElementById('prevBtn').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+      document.getElementById('nextBtn').innerText = currentQ === 9 ? 'Finish ✨' : 'Next →';
+    }
+    function chooseOption(m) { selectedAnswers[currentQ] = m; renderQuestion(); }
+    function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+    function nextQuestion() {
+      if (!selectedAnswers[currentQ]) { alert("Select an answer!"); return; }
+      if (currentQ < 9) { currentQ++; renderQuestion(); } else { calculateResult(); }
+    }
+    function calculateResult() {
+      const scores = { rm: 0, jin: 0, suga: 0, jhope: 0, jimin: 0, v: 0, jungkook: 0 };
+      selectedAnswers.forEach(m => { if (m) scores[m]++; });
+      let top = 'rm', max = -1; for (const m in scores) { if (scores[m] > max) { max = scores[m]; top = m; } }
+      const names = { rm: 'RM 🐨', jin: 'Jin 🐹', suga: 'SUGA 🐱', jhope: 'j-hope 🌞', jimin: 'Jimin 🐥', v: 'V 🐻', jungkook: 'Jungkook 🐰' };
+      document.getElementById('quizProgress').style.display = 'none';
+      document.getElementById('quizQuestion').style.display = 'none';
+      document.getElementById('quizOptions').style.display = 'none';
+      document.getElementById('quizNav').style.display = 'none';
+      document.getElementById('resultTitle').innerText = `✨ Match: ${names[top]}`;
+      document.getElementById('resultDesc').innerText = `You share your core personality and vibe with ${names[top]}!`;
+      document.getElementById('quizResult').style.display = 'block';
+    }
+    function resetQuiz() {
+      document.getElementById('quizResult').style.display = 'none';
+      document.getElementById('quizProgress').style.display = 'block';
+      document.getElementById('quizQuestion').style.display = 'block';
+      document.getElementById('quizOptions').style.display = 'flex';
+      document.getElementById('quizNav').style.display = 'flex';
+      initQuiz();
+    }
+
+    function filterMembers() {
+      const val = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.member-card').forEach(c => c.style.display = c.textContent.toLowerCase().includes(val) ? 'flex' : 'none');
+    }
+    function filterCategory(cat, btn) {
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.member-card').forEach(c => {
+        const categories = c.getAttribute('data-category') || '';
+        c.style.display = (cat === 'all' || categories.includes(cat)) ? 'flex' : 'none';
+      });
+    }
+
+    function openModal(id) {
+      const d = memberData[id]; if (!d) return;
+      document.getElementById('modalImg').src = d.image;
+      document.getElementById('modalStageName').innerText = d.stageName;
+      document.getElementById('modalPosition').innerText = d.position;
+      document.getElementById('modalEmojiIcon').innerText = d.emojiIcon;
+      document.getElementById('modalEmojiLabel').innerText = d.emojiLabel;
+      document.getElementById('modalBirthName').innerText = d.birthName;
+      document.getElementById('modalBirthday').innerText = d.birthday;
+      document.getElementById('modalZodiac').innerText = d.zodiac;
+      document.getElementById('modalHeight').innerText = d.height;
+      document.getElementById('modalMbti').innerText = d.mbti;
+      document.getElementById('modalNationality').innerText = d.nationality;
+      document.getElementById('modalBio').innerText = d.bio;
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+    function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
+    window.onclick = function(e) { if (e.target === document.getElementById('profileModal')) closeModal(); };
+
+    window.onload = function() { initQuiz(); audio.src = document.getElementById('songSelect').value; };
+  </script>
+</body>
+</html>

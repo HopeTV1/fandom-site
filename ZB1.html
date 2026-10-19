@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZEROBASEONE - Member Profiles & Interactive Lounge</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f7ff; color: #333; min-height: 100vh; }
+    nav { background: #1c2536; padding: 0 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .nav-logo { color: #e0f2fe; font-weight: bold; text-decoration: none; font-size: 1.15rem; }
+    .nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 15px; }
+    .nav-item { position: relative; }
+    .nav-link { color: #bae6fd; text-decoration: none; padding: 8px 14px; display: block; font-weight: bold; border-radius: 8px; }
+    .nav-link.active, .nav-link:hover, .nav-item:hover > .nav-link { color: #ffffff; background: rgba(56, 189, 248, 0.25); }
+    .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: #1e293b; min-width: 170px; border-radius: 10px; padding: 8px 0; list-style: none; border: 1px solid rgba(255,255,255,0.08); }
+    .dropdown-menu a { color: #e2e8f0; padding: 8px 16px; text-decoration: none; display: block; font-size: 0.88rem; }
+    .dropdown-menu a:hover { background: #38bdf8; color: #121212; font-weight: bold; }
+    .nav-item:hover .dropdown-menu { display: block; }
+    .page-header { text-align: center; padding: 25px 20px 10px; }
+    .page-header h1 { margin: 0 0 6px 0; color: #0284c7; font-size: 2.2rem; }
+    .page-header p { margin: 0; color: #64748b; font-size: 0.95rem; }
+    .dashboard-container { max-width: 1400px; margin: 20px auto 40px; padding: 0 20px; display: grid; grid-template-columns: 320px 1fr 340px; gap: 24px; align-items: start; }
+    .sidebar-card, .main-card { background: #ffffff; border-radius: 20px; padding: 22px; box-shadow: 0 6px 18px rgba(2, 132, 199, 0.06); border: 1px solid #e0f2fe; }
+    .section-title { color: #0284c7; font-size: 1.25rem; margin: 0 0 16px 0; text-align: center; }
+    .left-sidebar, .right-sidebar { display: flex; flex-direction: column; gap: 24px; }
+    .track-select { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #bae6fd; outline: none; font-size: 0.88rem; font-weight: bold; color: #0369a1; background: #ffffff; margin-bottom: 12px; }
+    .audio-controls { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .ctrl-btn { background: #0284c7; color: #ffffff; border: none; padding: 8px 14px; border-radius: 16px; font-weight: bold; cursor: pointer; font-size: 0.82rem; }
+    .ctrl-btn:hover { background: #0369a1; }
+    .scrubber-container { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: bold; color: #0284c7; }
+    .seek-slider { flex: 1; height: 5px; accent-color: #0284c7; cursor: pointer; }
+    .quote-tab-btns { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
+    .tab-btn { background: #e0f2fe; border: none; padding: 6px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: bold; cursor: pointer; color: #0369a1; }
+    .tab-btn.active { background: #0284c7; color: #fff; }
+    .quote-buttons { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 14px; }
+    .quote-btn { background: #f0f9ff; border: 1px solid #bae6fd; padding: 6px 10px; border-radius: 14px; cursor: pointer; font-weight: bold; font-size: 0.82rem; color: #0369a1; }
+    .quote-btn:hover { background: #0284c7; color: #ffffff; }
+    .quote-box { background: #ffffff; border: 1px dashed #7dd3fc; border-radius: 14px; padding: 14px; text-align: center; font-size: 0.88rem; font-style: italic; color: #0369a1; min-height: 75px; display: flex; align-items: center; justify-content: center; }
+    .album-accordion { margin-bottom: 10px; border-radius: 12px; overflow: hidden; border: 1px solid #bae6fd; }
+    .album-header { background: #0284c7; color: white; padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; font-size: 0.85rem; }
+    .song-list { list-style: none; padding: 8px 12px; margin: 0; background: #fff; }
+    .song-list li { padding: 4px 0; border-bottom: 1px dashed #e0f2fe; display: flex; justify-content: space-between; font-size: 0.8rem; color: #444; }
+    .song-list li:last-child { border-bottom: none; }
+    .filter-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 20px; }
+    #searchInput { padding: 10px 18px; width: 100%; max-width: 380px; border: 1px solid #bae6fd; border-radius: 20px; outline: none; font-size: 0.9rem; }
+    .filter-buttons { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .filter-btn { background: #e0f2fe; border: none; padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 0.82rem; font-weight: bold; color: #0369a1; }
+    .filter-btn.active, .filter-btn:hover { background: #0284c7; color: #ffffff; }
+    .members-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; }
+    .member-card { background: #ffffff; border-radius: 16px; padding: 14px; text-align: center; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.05); border: 1px solid #e0f2fe; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s; }
+    .member-card:hover { transform: translateY(-5px); }
+    .member-card img { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; }
+    .member-card h3 { margin: 10px 0 2px; color: #0c4a6e; font-size: 1.1rem; }
+    .member-card p { margin: 0 0 10px; font-size: 0.82rem; color: #64748b; }
+    .btn-profile { display: inline-block; padding: 8px 14px; background: #0284c7; color: #ffffff; border: none; cursor: pointer; font-weight: bold; border-radius: 18px; font-size: 0.82rem; }
+    .quiz-progress { font-size: 0.82rem; font-weight: bold; color: #0284c7; margin-bottom: 8px; text-align: center; }
+    .quiz-question { font-size: 0.95rem; font-weight: bold; color: #0c4a6e; margin-bottom: 14px; text-align: center; }
+    .quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .quiz-opt-btn { background: #ffffff; border: 1px solid #bae6fd; padding: 10px 12px; border-radius: 12px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #0369a1; text-align: left; }
+    .quiz-opt-btn.selected { background: #0284c7; color: #ffffff; border-color: #0284c7; }
+    .quiz-nav-btns { display: flex; justify-content: space-between; gap: 10px; }
+    .quiz-result { display: none; background: #fffbeb; border: 1px dashed #d97706; padding: 16px; border-radius: 16px; text-align: center; }
+    .binder-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .flip-card { background-color: transparent; height: 150px; perspective: 1000px; cursor: pointer; }
+    .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; border-radius: 12px; box-shadow: 0 3px 8px rgba(0,0,0,0.08); }
+    .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 6px; }
+    .flip-card-front { background: #0284c7; color: #ffffff; font-weight: bold; font-size: 0.8rem; }
+    .flip-card-back { background: #ffffff; color: #333; transform: rotateY(180deg); border: 1px solid #0284c7; }
+    .flip-card-back img { width: 100%; height: 95px; object-fit: cover; border-radius: 8px; margin-bottom: 2px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 2000; }
+    .modal-content { background-color: #ffffff; padding: 24px; border-radius: 18px; width: 90%; max-width: 540px; max-height: 90vh; overflow-y: auto; position: relative; }
+    .close-btn { position: absolute; top: 12px; right: 16px; font-size: 24px; cursor: pointer; color: #888; }
+    .modal-header { display: flex; gap: 16px; align-items: center; margin-bottom: 15px; }
+    .modal-img { width: 120px; height: 150px; object-fit: cover; border-radius: 10px; flex-shrink: 0; }
+    .modal-title-group h2 { margin: 0 0 4px 0; color: #0284c7; }
+    .modal-role { color: #0369a1; font-weight: bold; margin: 0 0 8px 0; }
+    .emoji-badge { display: inline-flex; align-items: center; gap: 6px; background: #e0f2fe; padding: 4px 10px; border-radius: 12px; font-size: 0.82rem; font-weight: bold; color: #0369a1; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f0f9ff; padding: 12px; border-radius: 10px; margin: 14px 0; border: 1px solid #e0f2fe; }
+    .stat-label { font-weight: bold; color: #0284c7; display: block; font-size: 0.75rem; text-transform: uppercase; }
+    .stat-value { color: #222; font-weight: 600; font-size: 0.88rem; }
+    .modal-bio-text { line-height: 1.5; color: #444; font-size: 0.88rem; }
+    @media (max-width: 1100px) { .dashboard-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">MUSIC VAULT ✨</a>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="#" class="nav-link active">Boy Groups ▾</a><ul class="dropdown-menu"><li><a href="bts.html">BTS</a></li><li><a href="zb1.html">ZEROBASEONE</a></li></ul></li>
+        <li class="nav-item"><a href="#" class="nav-link">Girl Groups ▾</a><ul class="dropdown-menu"><li><a href="newjeans.html">NewJeans</a></li></ul></li>
+        <li class="nav-item"><a href="#" class="nav-link">Soloists ▾</a><ul class="dropdown-menu"><li><a href="melanie.html">Melanie Martinez</a></li></ul></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>ZEROBASEONE (ZB1)</h1>
+    <p>Explore member profiles, play hits, test your bias match, and pull ZB1 photocards!</p>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- LEFT SIDEBAR -->
+    <div class="left-sidebar">
+      <div class="sidebar-card">
+        <h2 class="section-title">🎧 Music Lounge</h2>
+        <select id="songSelect" class="track-select" onchange="changeTrack(this.value)">
+          <option value="zb1.mp3">🎵 ZB1 - In Bloom</option>
+          <option value="crush.mp3">🎵 ZB1 - CRUSH</option>
+          <option value="feel_the_pop.mp3">🎵 ZB1 - Feel the POP</option>
+        </select>
+        <div class="audio-controls">
+          <button class="ctrl-btn" onclick="rewindAudio()">↺ -10s</button>
+          <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlayPause()">▶ Play</button>
+          <button class="ctrl-btn" onclick="skipAudio()">+10s ↻</button>
+        </div>
+        <div class="scrubber-container">
+          <span id="currentTime">0:00</span>
+          <input type="range" id="seekBar" class="seek-slider" value="0" min="0" max="100" oninput="seekAudio(this.value)">
+          <span id="totalDuration">0:00</span>
+        </div>
+        <audio id="audioEngine" ontimeupdate="updateProgress()" onloadedmetadata="initAudioMetadata()"></audio>
+      </div>
+
+      <div class="sidebar-card">
+        <h2 class="section-title">💬 Soundboard & Quotes</h2>
+        <div class="quote-tab-btns">
+          <button class="tab-btn active" id="btnIconic" onclick="switchQuoteCategory('iconic')">Iconic ✨</button>
+          <button class="tab-btn" id="btnFunny" onclick="switchQuoteCategory('funny')">Funny 😂</button>
+        </div>
+        <div class="quote-buttons">
+          <button class="quote-btn" onclick="showQuote('hanbin')">Hanbin</button>
+          <button class="quote-btn" onclick="showQuote('jiwoong')">Jiwoong</button>
+          <button class="quote-btn" onclick="showQuote('matthew')">Matthew</button>
+          <button class="quote-btn" onclick="showQuote('taerae')">Taerae</button>
+          <button class="quote-btn" onclick="showQuote('gunwook')">Gunwook</button>
+        </div>
+        <div class="quote-box" id="quoteText">"Click a member above to reveal a quote!"</div>
+      </div>
+
+      <!-- DISCOGRAPHY UNDER QUOTES -->
+      <div class="sidebar-card">
+        <h2 class="section-title">💿 Discography</h2>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('zb1_yits')"><span>Youth in the Shade (2023)</span><span>▾</span></div>
+          <ul class="song-list" id="zb1_yits" style="display: block;">
+            <li><span>In Bloom</span><span>3:01</span></li>
+            <li><span>New Kidz on the Block</span><span>3:32</span></li>
+            <li><span>and I</span><span>3:13</span></li>
+          </ul>
+        </div>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('zb1_mp')"><span>Melting Point (2023)</span><span>▾</span></div>
+          <ul class="song-list" id="zb1_mp" style="display: none;">
+            <li><span>CRUSH</span><span>3:01</span></li>
+            <li><span>Melting Point</span><span>2:53</span></li>
+            <li><span>Take My Hand</span><span>3:35</span></li>
+          </ul>
+        </div>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('zb1_hello')"><span>You had me at HELLO (2024)</span><span>▾</span></div>
+          <ul class="song-list" id="zb1_hello" style="display: none;">
+            <li><span>Feel the POP</span><span>2:56</span></li>
+            <li><span>SWEAT</span><span>3:08</span></li>
+            <li><span>Solar POWER</span><span>2:52</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="main-card">
+      <div class="filter-container">
+        <input type="text" id="searchInput" placeholder="Search member name or role..." onkeyup="filterMembers()">
+        <div class="filter-buttons">
+          <button class="filter-btn active" onclick="filterCategory('all', this)">All</button>
+          <button class="filter-btn" onclick="filterCategory('vocal', this)">Vocalists</button>
+          <button class="filter-btn" onclick="filterCategory('rap', this)">Rappers</button>
+          <button class="filter-btn" onclick="filterCategory('dance', this)">Dancers</button>
+        </div>
+      </div>
+
+      <div class="members-grid">
+        <div class="member-card" data-category="dance vocal"><img src="hanbin.jpeg" alt="Hanbin"><h3>Hanbin</h3><p>Leader & Main Dancer</p><button class="btn-profile" onclick="openModal('hanbin')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="vocal rap"><img src="jiwoong.jpeg" alt="Jiwoong"><h3>Jiwoong</h3><p>Vocalist, Rapper & Visual</p><button class="btn-profile" onclick="openModal('jiwoong')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="vocal dance"><img src="matthew.jpg" alt="Matthew"><h3>Matthew</h3><p>Lead Vocalist & Dancer</p><button class="btn-profile" onclick="openModal('matthew')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="vocal"><img src="taerae.jpeg" alt="Taerae"><h3>Taerae</h3><p>Main Vocalist</p><button class="btn-profile" onclick="openModal('taerae')">View Profile &rrarr;</button></div>
+        <div class="member-card" data-category="rap dance"><img src="gunwook.jpeg" alt="Gunwook"><h3>Gunwook</h3><p>Main Rapper & Maknae</p><button class="btn-profile" onclick="openModal('gunwook')">View Profile &rrarr;</button></div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="right-sidebar">
+      <!-- BIAS MATCH QUIZ FOR ZB1 -->
+      <div class="sidebar-card">
+        <h2 class="section-title">🔮 Find Your ZB1 Match</h2>
+        <div class="quiz-progress" id="quizProgress">Question 1 of 10</div>
+        <div class="quiz-question" id="quizQuestion">Loading question...</div>
+        <div class="quiz-options" id="quizOptions"></div>
+        <div class="quiz-nav-btns" id="quizNav">
+          <button class="btn-profile" id="prevBtn" onclick="prevQuestion()" style="background: #a1a1aa;">← Back</button>
+          <button class="btn-profile" id="nextBtn" onclick="nextQuestion()">Next →</button>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <h3 id="resultTitle" style="margin: 0 0 6px 0; color: #0369a1; font-size: 1.1rem;"></h3>
+          <p id="resultDesc" style="margin: 0 0 12px 0; color: #0c4a6e; font-size: 0.85rem; line-height: 1.4;"></p>
+          <button class="btn-profile" onclick="resetQuiz()">Retake Quiz ↺</button>
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <h2 class="section-title">🃏 Photocard Binder</h2>
+        <div class="binder-grid">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #1</div><div class="flip-card-back"><img src="hanbin_pc.jpg" onerror="this.src='hanbin.jpeg'" alt="Hanbin"><b>Hanbin 🐹</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #2</div><div class="flip-card-back"><img src="jiwoong_pc.jpg" onerror="this.src='jiwoong.jpeg'" alt="Jiwoong"><b>Jiwoong 🐈‍⬛</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #3</div><div class="flip-card-back"><img src="matthew_pc.jpg" onerror="this.src='matthew.jpg'" alt="Matthew"><b>Matthew 🦊</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #4</div><div class="flip-card-back"><img src="taerae_pc.jpg" onerror="this.src='taerae.jpeg'" alt="Taerae"><b>Taerae 🦆</b></div></div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-card-inner"><div class="flip-card-front">✨ Pull PC #5</div><div class="flip-card-back"><img src="gunwook_pc.jpg" onerror="this.src='gunwook.jpeg'" alt="Gunwook"><b>Gunwook 🐻</b></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div class="modal-header">
+        <img id="modalImg" class="modal-img" src="" alt="Member Photo">
+        <div class="modal-title-group">
+          <h2 id="modalStageName">Stage Name</h2>
+          <p id="modalPosition" class="modal-role">Position</p>
+          <div class="emoji-badge"><span id="modalEmojiIcon"></span><span id="modalEmojiLabel">Emoji</span></div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item"><span class="stat-label">Birth Name</span><span id="modalBirthName" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Birthday</span><span id="modalBirthday" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Zodiac Sign</span><span id="modalZodiac" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Height</span><span id="modalHeight" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">MBTI</span><span id="modalMbti" class="stat-value">-</span></div>
+        <div class="stat-item"><span class="stat-label">Nationality</span><span id="modalNationality" class="stat-value">-</span></div>
+      </div>
+      <p id="modalBio" class="modal-bio-text">Member bio...</p>
+    </div>
+  </div>
+
+  <script>
+    const memberData = {
+      hanbin: { image: 'hanbin.jpeg', stageName: 'Hanbin', birthName: 'Sung Han Bin (성한빈)', birthday: 'June 13th, 2001', position: 'Leader, Main Dancer', zodiac: 'Gemini', height: '179.6 cm', mbti: 'ENFJ', nationality: 'South Korean', emojiIcon: '🐹', emojiLabel: 'Hamster', bio: 'Sung Hanbin is the leader of ZEROBASEONE, skilled in tutting and waacking dance styles.' },
+      jiwoong: { image: 'jiwoong.jpeg', stageName: 'Jiwoong', birthName: 'Kim Ji Woong (김지웅)', birthday: 'December 14, 1998', position: 'Vocalist, Rapper, Visual', zodiac: 'Sagittarius', height: '181 cm', mbti: 'ENFJ', nationality: 'South Korean', emojiIcon: '🐈‍⬛', emojiLabel: 'Cat', bio: 'Kim Jiwoong is an actor and idol, starring in popular web drama series prior to Boys Planet.' },
+      matthew: { image: 'matthew.jpg', stageName: 'Matthew', birthName: 'Seok Matthew (석매튜)', birthday: 'May 28th, 2002', position: 'Lead Vocalist & Dancer', zodiac: 'Gemini', height: '171 cm', mbti: 'ENFJ', nationality: 'Canadian-South Korean', emojiIcon: '🦊', emojiLabel: 'Fox', bio: 'Seok Matthew was born in Vancouver, Canada, known for his bright smile and stage charm.' },
+      taerae: { image: 'taerae.jpeg', stageName: 'Taerae', birthName: 'Kim Tae Rae (김태래)', birthday: 'July 14th, 2002', position: 'Main Vocalist', zodiac: 'Cancer', height: '174 cm', mbti: 'ESTJ', nationality: 'South Korean', emojiIcon: '🦆', emojiLabel: 'Duck', bio: 'Kim Taerae is known for his acoustic guitar playing and powerful vocal range.' },
+      gunwook: { image: 'gunwook.jpeg', stageName: 'Gunwook', birthName: 'Park Gun Wook (박건욱)', birthday: 'January 10th, 2005', position: 'Main Rapper & Maknae', zodiac: 'Capricorn', height: '183.9 cm', mbti: 'ENTJ', nationality: 'South Korean', emojiIcon: '🐻', emojiLabel: 'Bear', bio: 'Park Gunwook is an all-rounder skilled in rapping, singing, and athletic dance execution.' }
+    };
+
+    let currentQuoteCategory = 'iconic';
+    const iconicQuotes = {
+      hanbin: '"I will shine brighter for all of you who believed in me!"',
+      jiwoong: '"Let\'s create unforgettable memories together."',
+      matthew: '"I love you guys so much, let\'s go baseline!"',
+      taerae: '"Singing for you is my happiest moment."',
+      gunwook: '"I\'ll prove my passion on every stage."'
+    };
+    const funnyQuotes = {
+      hanbin: '"Mother is mothering!"',
+      jiwoong: '"Why am I always getting caught?"',
+      matthew: '"Canada boy representation!"',
+      taerae: '"Guitar string broke again..."',
+      gunwook: '"Giant baby coming through!"'
+    };
+
+    function switchQuoteCategory(cat) {
+      currentQuoteCategory = cat;
+      document.getElementById('btnIconic').classList.toggle('active', cat === 'iconic');
+      document.getElementById('btnFunny').classList.toggle('active', cat === 'funny');
+      document.getElementById('quoteText').innerText = `"Click a member above for a ${cat} quote!"`;
+    }
+
+    function showQuote(m) {
+      const bank = currentQuoteCategory === 'iconic' ? iconicQuotes : funnyQuotes;
+      document.getElementById('quoteText').innerText = bank[m] || '';
+    }
+
+    function toggleAlbum(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    const audio = document.getElementById('audioEngine');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function changeTrack(src) { audio.src = src; audio.play().then(() => playPauseBtn.innerText = '⏸ Pause').catch(e => console.log('Wait click')); }
+    function togglePlayPause() {
+      if (!audio.src) audio.src = document.getElementById('songSelect').value;
+      if (audio.paused) { audio.play(); playPauseBtn.innerText = '⏸ Pause'; } else { audio.pause(); playPauseBtn.innerText = '▶ Play'; }
+    }
+    function rewindAudio() { audio.currentTime = Math.max(0, audio.currentTime - 10); }
+    function skipAudio() { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); }
+    function seekAudio(val) { audio.currentTime = (val / 100) * audio.duration; }
+    function updateProgress() {
+      if (!audio.duration) return;
+      document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
+      document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+      document.getElementById('totalDuration').innerText = formatTime(audio.duration);
+    }
+    function initAudioMetadata() { document.getElementById('totalDuration').innerText = formatTime(audio.duration); }
+    function formatTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? '0' : ''}${sec}`; }
+
+    // 10-QUESTION ZB1 QUIZ SYSTEM
+    const rawQuestions = [
+      { q: "1. Preferred leadership style?", opts: [{ txt: "Encouraging & caring", member: "hanbin" }, { txt: "Calm & mysterious", member: "jiwoong" }, { txt: "Bright & energetic", member: "matthew" }, { txt: "Warm & musical", member: "taerae" }, { txt: "Bold & passionate", member: "gunwook" }] },
+      { q: "2. Choice of pastime hobby?", opts: [{ txt: "Dancing & choreographing", member: "hanbin" }, { txt: "Acting & watching films", member: "jiwoong" }, { txt: "Exercising & laughing with friends", member: "matthew" }, { txt: "Playing acoustic guitar", member: "taerae" }, { txt: "Sports & energetic activities", member: "gunwook" }] },
+      { q: "3. Ideal fashion statement?", opts: [{ txt: "Clean & polished chic", member: "hanbin" }, { txt: "Sophisticated dark coats", member: "jiwoong" }, { txt: "Casual Canadian streetwear", member: "matthew" }, { txt: "Cozy knit sweaters", member: "taerae" }, { txt: "Bold athletic streetwear", member: "gunwook" }] },
+      { q: "4. Personal strength on stage?", opts: [{ txt: "Precision dance execution", member: "hanbin" }, { txt: "Captivating visual charisma", member: "jiwoong" }, { txt: "Infectious sunshine energy", member: "matthew" }, { txt: "Clear, emotional vocal tones", member: "taerae" }, { txt: "Powerful rap and movement", member: "gunwook" }] },
+      { q: "5. How do you handle stressful days?", opts: [{ txt: "Guide others gently", member: "hanbin" }, { txt: "Stay quiet and focused", member: "jiwoong" }, { txt: "Smile through it with positivity", member: "matthew" }, { txt: "Sing your favorite songs", member: "taerae" }, { txt: "Channel it into hard work", member: "gunwook" }] },
+      { q: "6. Pick an aesthetic color palette:", opts: [{ txt: "Soft lavender & sky blue", member: "hanbin" }, { txt: "Midnight black & dark navy", member: "jiwoong" }, { txt: "Warm yellow & orange", member: "matthew" }, { txt: "Pastel green & cream", member: "taerae" }, { txt: "Deep red & charcoal", member: "gunwook" }] },
+      { q: "7. Ideal friend dynamic?", opts: [{ txt: "A supportive listener", member: "hanbin" }, { txt: "A dependable older brother", member: "jiwoong" }, { txt: "A funny, affectionate companion", member: "matthew" }, { txt: "A gentle musical soul", member: "taerae" }, { txt: "A fiercely loyal partner", member: "gunwook" }] },
+      { q: "8. Morning person or night owl?", opts: [{ txt: "Early morning practice", member: "hanbin" }, { txt: "Quiet night thinker", member: "jiwoong" }, { txt: "Bright afternoon energy", member: "matthew" }, { txt: "Evening music jam session", member: "taerae" }, { txt: "All-day high stamina", member: "gunwook" }] },
+      { q: "9. Preferred musical element?", opts: [{ txt: "Sharp rhythm and beat", member: "hanbin" }, { txt: "Deep dramatic tone", member: "jiwoong" }, { txt: "Catchy melody hooks", member: "matthew" }, { txt: "Acoustic vocal harmonies", member: "taerae" }, { txt: "Heavy bass and rap bars", member: "gunwook" }] },
+      { q: "10. Core personal goal?", opts: [{ txt: "Bring out the best in everyone", member: "hanbin" }, { txt: "Master your artistic crafts", member: "jiwoong" }, { txt: "Spread pure happiness around", member: "matthew" }, { txt: "Touch hearts through music", member: "taerae" }, { txt: "Become an unstoppable force", member: "gunwook" }] }
+    ];
+
+    let quizData = [], currentQ = 0, selectedAnswers = new Array(10).fill(null);
+    function shuffleArray(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+    function initQuiz() { quizData = rawQuestions.map(item => ({ q: item.q, opts: shuffleArray(item.opts) })); currentQ = 0; selectedAnswers.fill(null); renderQuestion(); }
+    function renderQuestion() {
+      const q = quizData[currentQ];
+      document.getElementById('quizProgress').innerText = `Question ${currentQ + 1} of 10`;
+      document.getElementById('quizQuestion').innerText = q.q;
+      document.getElementById('quizOptions').innerHTML = q.opts.map(opt => `
+        <button class="quiz-opt-btn ${selectedAnswers[currentQ] === opt.member ? 'selected' : ''}" onclick="chooseOption('${opt.member}')">${opt.txt}</button>
+      `).join('');
+      document.getElementById('prevBtn').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+      document.getElementById('nextBtn').innerText = currentQ === 9 ? 'Finish ✨' : 'Next →';
+    }
+    function chooseOption(m) { selectedAnswers[currentQ] = m; renderQuestion(); }
+    function prevQuestion() { if (currentQ > 0) { currentQ--; renderQuestion(); } }
+    function nextQuestion() {
+      if (!selectedAnswers[currentQ]) { alert("Select an answer!"); return; }
+      if (currentQ < 9) { currentQ++; renderQuestion(); } else { calculateResult(); }
+    }
+    function calculateResult() {
+      const scores = { hanbin: 0, jiwoong: 0, matthew: 0, taerae: 0, gunwook: 0 };
+      selectedAnswers.forEach(m => { if (m) scores[m]++; });
+      let top = 'hanbin', max = -1; for (const m in scores) { if (scores[m] > max) { max = scores[m]; top = m; } }
+      const names = { hanbin: 'Sung Hanbin 🐹', jiwoong: 'Kim Jiwoong 🐈‍⬛', matthew: 'Seok Matthew 🦊', taerae: 'Kim Taerae 🦆', gunwook: 'Park Gunwook 🐻' };
+      document.getElementById('quizProgress').style.display = 'none';
+      document.getElementById('quizQuestion').style.display = 'none';
+      document.getElementById('quizOptions').style.display = 'none';
+      document.getElementById('quizNav').style.display = 'none';
+      document.getElementById('resultTitle').innerText = `✨ ZB1 Match: ${names[top]}`;
+      document.getElementById('resultDesc').innerText = `Your personality and vibe match best with ${names[top]}!`;
+      document.getElementById('quizResult').style.display = 'block';
+    }
+    function resetQuiz() {
+      document.getElementById('quizResult').style.display = 'none';
+      document.getElementById('quizProgress').style.display = 'block';
+      document.getElementById('quizQuestion').style.display = 'block';
+      document.getElementById('quizOptions').style.display = 'flex';
+      document.getElementById('quizNav').style.display = 'flex';
+      initQuiz();
+    }
+
+    function filterMembers() {
+      const val = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.member-card').forEach(c => c.style.display = c.textContent.toLowerCase().includes(val) ? 'flex' : 'none');
+    }
+    function filterCategory(cat, btn) {
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.member-card').forEach(c => {
+        const categories = c.getAttribute('data-category') || '';
+        c.style.display = (cat === 'all' || categories.includes(cat)) ? 'flex' : 'none';
+      });
+    }
+
+    function openModal(id) {
+      const d = memberData[id]; if (!d) return;
+      document.getElementById('modalImg').src = d.image;
+      document.getElementById('modalStageName').innerText = d.stageName;
+      document.getElementById('modalPosition').innerText = d.position;
+      document.getElementById('modalEmojiIcon').innerText = d.emojiIcon;
+      document.getElementById('modalEmojiLabel').innerText = d.emojiLabel;
+      document.getElementById('modalBirthName').innerText = d.birthName;
+      document.getElementById('modalBirthday').innerText = d.birthday;
+      document.getElementById('modalZodiac').innerText = d.zodiac;
+      document.getElementById('modalHeight').innerText = d.height;
+      document.getElementById('modalMbti').innerText = d.mbti;
+      document.getElementById('modalNationality').innerText = d.nationality;
+      document.getElementById('modalBio').innerText = d.bio;
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+    function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
+    window.onclick = function(e) { if (e.target === document.getElementById('profileModal')) closeModal(); };
+
+    window.onload = function() { initQuiz(); audio.src = document.getElementById('songSelect').value; };
+  </script>
+</body>
+</html>

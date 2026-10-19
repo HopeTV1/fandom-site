@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melanie Martinez - Vault & Discography</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background-color: #fce7f3; color: #333; min-height: 100vh; }
+    nav { background: #27122b; padding: 0 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .nav-container { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .nav-logo { color: #fbcfe8; font-weight: bold; text-decoration: none; font-size: 1.15rem; }
+    .nav-menu { display: flex; list-style: none; margin: 0; padding: 0; gap: 15px; }
+    .nav-item { position: relative; }
+    .nav-link { color: #f472b6; text-decoration: none; padding: 8px 14px; display: block; font-weight: bold; border-radius: 8px; }
+    .nav-link.active, .nav-link:hover, .nav-item:hover > .nav-link { color: #ffffff; background: rgba(244, 114, 182, 0.25); }
+    .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: #3b1740; min-width: 170px; border-radius: 10px; padding: 8px 0; list-style: none; }
+    .dropdown-menu a { color: #fbcfe8; padding: 8px 16px; text-decoration: none; display: block; font-size: 0.88rem; }
+    .dropdown-menu a:hover { background: #db2777; color: #ffffff; font-weight: bold; }
+    .nav-item:hover .dropdown-menu { display: block; }
+    .page-header { text-align: center; padding: 25px 20px 10px; }
+    .page-header h1 { margin: 0 0 6px 0; color: #db2777; font-size: 2.2rem; }
+    .page-header p { margin: 0; color: #701a75; font-size: 0.95rem; }
+    .dashboard-container { max-width: 1400px; margin: 20px auto 40px; padding: 0 20px; display: grid; grid-template-columns: 320px 1fr 340px; gap: 24px; align-items: start; }
+    .sidebar-card, .main-card { background: #ffffff; border-radius: 20px; padding: 22px; box-shadow: 0 6px 18px rgba(219, 39, 119, 0.06); border: 1px solid #fbcfe8; }
+    .section-title { color: #db2777; font-size: 1.25rem; margin: 0 0 16px 0; text-align: center; }
+    .left-sidebar, .right-sidebar { display: flex; flex-direction: column; gap: 24px; }
+    .track-select { width: 100%; padding: 10px; border-radius: 12px; border: 1px solid #fbcfe8; outline: none; font-size: 0.88rem; font-weight: bold; color: #9d174d; background: #ffffff; margin-bottom: 12px; }
+    .audio-controls { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
+    .ctrl-btn { background: #db2777; color: #ffffff; border: none; padding: 8px 14px; border-radius: 16px; font-weight: bold; cursor: pointer; font-size: 0.82rem; }
+    .ctrl-btn:hover { background: #be185d; }
+    .scrubber-container { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: bold; color: #db2777; }
+    .seek-slider { flex: 1; height: 5px; accent-color: #db2777; cursor: pointer; }
+    .quote-tab-btns { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
+    .tab-btn { background: #fce7f3; border: none; padding: 6px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: bold; cursor: pointer; color: #be185d; }
+    .tab-btn.active { background: #db2777; color: #fff; }
+    .quote-buttons { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 14px; }
+    .quote-btn { background: #fdf2f8; border: 1px solid #fbcfe8; padding: 6px 10px; border-radius: 14px; cursor: pointer; font-weight: bold; font-size: 0.82rem; color: #be185d; }
+    .quote-btn:hover { background: #db2777; color: #ffffff; }
+    .quote-box { background: #ffffff; border: 1px dashed #f472b6; border-radius: 14px; padding: 14px; text-align: center; font-size: 0.88rem; font-style: italic; color: #be185d; min-height: 75px; display: flex; align-items: center; justify-content: center; }
+    .album-accordion { margin-bottom: 10px; border-radius: 12px; overflow: hidden; border: 1px solid #fbcfe8; }
+    .album-header { background: #db2777; color: white; padding: 8px 12px; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; font-size: 0.85rem; }
+    .song-list { list-style: none; padding: 8px 12px; margin: 0; background: #fff; }
+    .song-list li { padding: 4px 0; border-bottom: 1px dashed #fbcfe8; display: flex; justify-content: space-between; font-size: 0.8rem; color: #444; }
+    .song-list li:last-child { border-bottom: none; }
+    .artist-bio-card { text-align: center; }
+    .artist-bio-card img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 14px; margin-bottom: 12px; }
+    .artist-bio-card h2 { color: #be185d; margin: 0 0 8px 0; }
+    .artist-bio-card p { line-height: 1.55; color: #444; font-size: 0.9rem; margin: 0; }
+    @media (max-width: 1100px) { .dashboard-container { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">MUSIC VAULT ✨</a>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="#" class="nav-link">Boy Groups ▾</a><ul class="dropdown-menu"><li><a href="bts.html">BTS</a></li><li><a href="zb1.html">ZEROBASEONE</a></li></ul></li>
+        <li class="nav-item"><a href="#" class="nav-link">Girl Groups ▾</a><ul class="dropdown-menu"><li><a href="newjeans.html">NewJeans</a></li></ul></li>
+        <li class="nav-item"><a href="#" class="nav-link active">Soloists ▾</a><ul class="dropdown-menu"><li><a href="melanie.html">Melanie Martinez</a></li></ul></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>🎀 Melanie Martinez 🎀</h1>
+    <p>Explore her artistic eras, listen to hit singles, and view full tracklists!</p>
+  </div>
+
+  <div class="dashboard-container">
+    <!-- LEFT SIDEBAR -->
+    <div class="left-sidebar">
+      <div class="sidebar-card">
+        <h2 class="section-title">🎧 Audio Player</h2>
+        <select id="songSelect" class="track-select" onchange="changeTrack(this.value)">
+          <option value="dollhouse.mp3">🎵 Melanie Martinez - Dollhouse</option>
+          <option value="pity_party.mp3">🎵 Melanie Martinez - Pity Party</option>
+          <option value="death.mp3">🎵 Melanie Martinez - DEATH</option>
+        </select>
+        <div class="audio-controls">
+          <button class="ctrl-btn" onclick="rewindAudio()">↺ -10s</button>
+          <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlayPause()">▶ Play</button>
+          <button class="ctrl-btn" onclick="skipAudio()">+10s ↻</button>
+        </div>
+        <div class="scrubber-container">
+          <span id="currentTime">0:00</span>
+          <input type="range" id="seekBar" class="seek-slider" value="0" min="0" max="100" oninput="seekAudio(this.value)">
+          <span id="totalDuration">0:00</span>
+        </div>
+        <audio id="audioEngine" ontimeupdate="updateProgress()" onloadedmetadata="initAudioMetadata()"></audio>
+      </div>
+
+      <div class="sidebar-card">
+        <h2 class="section-title">💬 Soundboard & Quotes</h2>
+        <div class="quote-tab-btns">
+          <button class="tab-btn active" id="btnIconic" onclick="switchQuoteCategory('iconic')">Iconic ✨</button>
+          <button class="tab-btn" id="btnFunny" onclick="switchQuoteCategory('funny')">Funny 😂</button>
+        </div>
+        <div class="quote-buttons">
+          <button class="quote-btn" onclick="showQuote('crybaby')">Cry Baby</button>
+          <button class="quote-btn" onclick="showQuote('k12')">K-12</button>
+          <button class="quote-btn" onclick="showQuote('portals')">PORTALS</button>
+        </div>
+        <div class="quote-box" id="quoteText">"Click an era above to reveal a quote!"</div>
+      </div>
+
+      <!-- DISCOGRAPHY UNDER QUOTES -->
+      <div class="sidebar-card">
+        <h2 class="section-title">💿 Discography</h2>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('crybaby')"><span>🍼 Cry Baby (2015)</span><span>▾</span></div>
+          <ul class="song-list" id="crybaby" style="display: block;">
+            <li><span>Cry Baby</span><span>3:59</span></li>
+            <li><span>Dollhouse</span><span>3:51</span></li>
+            <li><span>Sippy Cup</span><span>3:15</span></li>
+            <li><span>Carousel</span><span>3:50</span></li>
+            <li><span>Pity Party</span><span>3:24</span></li>
+          </ul>
+        </div>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('k12')"><span>🏫 K-12 (2019)</span><span>▾</span></div>
+          <ul class="song-list" id="k12" style="display: none;">
+            <li><span>Wheels on the Bus</span><span>3:40</span></li>
+            <li><span>Class Fight</span><span>2:41</span></li>
+            <li><span>Show & Tell</span><span>3:35</span></li>
+            <li><span>Nurse's Office</span><span>3:22</span></li>
+          </ul>
+        </div>
+        <div class="album-accordion">
+          <div class="album-header" onclick="toggleAlbum('portals')"><span>🧚‍♀️ PORTALS (2023)</span><span>▾</span></div>
+          <ul class="song-list" id="portals" style="display: none;">
+            <li><span>DEATH</span><span>5:06</span></li>
+            <li><span>VOID</span><span>4:07</span></li>
+            <li><span>TUNNEL VISION</span><span>4:44</span></li>
+            <li><span>EVIL</span><span>4:06</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="main-card">
+      <div class="artist-bio-card">
+        <img src="melanie.jpg" onerror="this.src='melanie.jpg'" alt="Melanie Martinez">
+        <h2>About Melanie Martinez</h2>
+        <p>Melanie Martinez is an American singer-songwriter, visual artist, and director known for her conceptual albums <i>Cry Baby</i>, <i>K-12</i>, and <i>PORTALS</i>. Her unique aesthetic blends vintage pastel fairytale visuals with dark, thought-provoking pop storytelling.</p>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="right-sidebar">
+      <div class="sidebar-card">
+        <h2 class="section-title">✨ Concept Aesthetic</h2>
+        <p style="font-size: 0.88rem; line-height: 1.5; color: #555; text-align: center; margin: 0;">Each era in Melanie's discography represents a transformation of her character persona—from childhood innocence to surreal creature rebirth.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentQuoteCategory = 'iconic';
+    const iconicQuotes = {
+      crybaby: '"All the best people are crazy."',
+      k12: '"You can\'t take back what you said, it\'s written on your face."',
+      portals: '"Death is not the end, it\'s just a transformation."'
+    };
+    const funnyQuotes = {
+      crybaby: '"Pacify her? No thanks, I want juice!"',
+      k12: '"Teacher\'s pet? More like teacher\'s nightmare."',
+      portals: '"Yes, I have four eyes now, double the vision!"'
+    };
+
+    function switchQuoteCategory(cat) {
+      currentQuoteCategory = cat;
+      document.getElementById('btnIconic').classList.toggle('active', cat === 'iconic');
+      document.getElementById('btnFunny').classList.toggle('active', cat === 'funny');
+      document.getElementById('quoteText').innerText = `"Click an era above for a ${cat} quote!"`;
+    }
+
+    function showQuote(era) {
+      const bank = currentQuoteCategory === 'iconic' ? iconicQuotes : funnyQuotes;
+      document.getElementById('quoteText').innerText = bank[era] || '';
+    }
+
+    function toggleAlbum(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    const audio = document.getElementById('audioEngine');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    function changeTrack(src) { audio.src = src; audio.play().then(() => playPauseBtn.innerText = '⏸ Pause').catch(e => console.log('Wait click')); }
+    function togglePlayPause() {
+      if (!audio.src) audio.src = document.getElementById('songSelect').value;
+      if (audio.paused) { audio.play(); playPauseBtn.innerText = '⏸ Pause'; } else { audio.pause(); playPauseBtn.innerText = '▶ Play'; }
+    }
+    function rewindAudio() { audio.currentTime = Math.max(0, audio.currentTime - 10); }
+    function skipAudio() { audio.currentTime = Math.min(audio.duration, audio.currentTime + 10); }
+    function seekAudio(val) { audio.currentTime = (val / 100) * audio.duration; }
+    function updateProgress() {
+      if (!audio.duration) return;
+      document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
+      document.getElementById('currentTime').innerText = formatTime(audio.currentTime);
+      document.getElementById('totalDuration').innerText = formatTime(audio.duration);
+    }
+    function initAudioMetadata() { document.getElementById('totalDuration').innerText = formatTime(audio.duration); }
+    function formatTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? '0' : ''}${sec}`; }
+
+    window.onload = function() { audio.src = document.getElementById('songSelect').value; };
+  </script>
+</body>
+</html>
